@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="zh-TW" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Golang中协程的使用 | 苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</title><meta name="description" content="GoRoutine   本文相关demo，请点击此处 协程与函数返回值golang中的协程是由Go routime进行管理的，如果函数有返回值，则这个函数的返回值会被丢弃。 Golang协程的创建使用go FUNC_NAME(PARAMETER_LIIST)可以很简单的创建出一个协程来执行相应的操作 Golang协程的管理同步sync.WaitGroup用来设置计数器等待线程完成之后再继续进行主执"><meta name="author" content="AHAOAHA"><meta name="copyright" content="AHAOAHA"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://ahaoaha.top/2019/05/09/Golang%E4%B8%AD%E5%8D%8F%E7%A8%8B%E7%9A%84%E4%BD%BF%E7%94%A8/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="Golang中协程的使用"><meta property="og:url" content="http://ahaoaha.top/2019/05/09/Golang%E4%B8%AD%E5%8D%8F%E7%A8%8B%E7%9A%84%E4%BD%BF%E7%94%A8/"><meta property="og:site_name" content="苦心人，天不負，臥薪嘗膽，三千越甲可吞吳"><meta property="og:description" content="GoRoutine   本文相关demo，请点击此处 协程与函数返回值golang中的协程是由Go routime进行管理的，如果函数有返回值，则这个函数的返回值会被丢弃。 Golang协程的创建使用go FUNC_NAME(PARAMETER_LIIST)可以很简单的创建出一个协程来执行相应的操作 Golang协程的管理同步sync.WaitGroup用来设置计数器等待线程完成之后再继续进行主执"><meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2019-05-09T03:03:20.000Z"><meta property="article:modified_time" content="2019-09-08T05:10:57.099Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="Nginx Notes" href="http://ahaoaha.top/2019/05/15/Nginx-Notes/"><link rel="next" title="Golang中操作字符串" href="http://ahaoaha.top/2019/04/29/Golang%E4%B8%AD%E6%93%8D%E4%BD%9C%E5%AD%97%E7%AC%A6%E4%B8%B2/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '複製成功',
+    error: '複製錯誤',
+    noSupport: '瀏覽器不支援'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '鍵將本頁加入書籤'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: false    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="苦心人，天不負，臥薪嘗膽，三千越甲可吞吳" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">49</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">標籤</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分類</div><div class="length_num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down menus-expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目錄</div><div class="sidebar-toc__progress"><span class="progress-notice">你已經讀了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#协程与函数返回值"><span class="toc-number">1.</span> <span class="toc-text">协程与函数返回值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Golang协程的创建"><span class="toc-number">2.</span> <span class="toc-text">Golang协程的创建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Golang协程的管理"><span class="toc-number">3.</span> <span class="toc-text">Golang协程的管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#同步"><span class="toc-number">3.1.</span> <span class="toc-text">同步</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#sync-WaitGroup"><span class="toc-number">3.1.1.</span> <span class="toc-text">sync.WaitGroup</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#sync-Once"><span class="toc-number">3.1.2.</span> <span class="toc-text">sync.Once</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#原理"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#sync-Pool"><span class="toc-number">3.1.3.</span> <span class="toc-text">sync.Pool</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Channel"><span class="toc-number">3.1.4.</span> <span class="toc-text">Channel</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#互斥"><span class="toc-number">3.2.</span> <span class="toc-text">互斥</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#sync-Mutex"><span class="toc-number">3.2.1.</span> <span class="toc-text">sync.Mutex</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#sync-RWMutex"><span class="toc-number">3.2.2.</span> <span class="toc-text">sync.RWMutex</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Context"><span class="toc-number">4.</span> <span class="toc-text">Context</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#创建Context对象"><span class="toc-number">4.1.</span> <span class="toc-text">创建Context对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#context-Context接口的方法"><span class="toc-number">4.2.</span> <span class="toc-text">context.Context接口的方法</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</a></span><span class="pull-right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down menus-expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Golang中协程的使用</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="發表於 2019-05-09 11:03:20"><i class="far fa-calendar-alt fa-fw"></i> 發表於 2019-05-09</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新於 2019-09-08 13:10:57"><i class="fas fa-history fa-fw"></i> 更新於 2019-09-08</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/%E5%8D%8F%E7%A8%8B/">协程</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta__icon"></i><span>閱讀量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>GoRoutine</p>
+<a id="more"></a>
+
+<p>本文相关demo，请<a href="https://github.com/AHAOAHA/GoCode/tree/master/linux_go/src/code" target="_blank" rel="noopener">点击此处</a></p>
+<h3 id="协程与函数返回值"><a href="#协程与函数返回值" class="headerlink" title="协程与函数返回值"></a>协程与函数返回值</h3><p>golang中的协程是由Go routime进行管理的，如果函数有返回值，则这个函数的返回值会被丢弃。</p>
+<h3 id="Golang协程的创建"><a href="#Golang协程的创建" class="headerlink" title="Golang协程的创建"></a>Golang协程的创建</h3><p><strong>使用<code>go FUNC_NAME(PARAMETER_LIIST)</code>可以很简单的创建出一个协程来执行相应的操作</strong></p>
+<h3 id="Golang协程的管理"><a href="#Golang协程的管理" class="headerlink" title="Golang协程的管理"></a>Golang协程的管理</h3><h4 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h4><h5 id="sync-WaitGroup"><a href="#sync-WaitGroup" class="headerlink" title="sync.WaitGroup"></a>sync.WaitGroup</h5><p><strong>用来设置计数器等待线程完成之后再继续进行主执行流</strong></p>
+<ul>
+<li><strong><code>func (wg *WaitGroup) Add(delta int)</code>：设置一个计数器，delta表明该计数器用来管理的协程的数量，计数器的设置应该位于主执行流中</strong></li>
+<li><strong><code>func (wg *WaitGroup) Done()</code>：对计数器进行–操作，该操作应该位于协程自身的执行流的末尾</strong></li>
+<li><strong><code>func (wg *WaitGroup) Wait()</code>：等待计数器所管理的协程的执行完毕，也就是在等待计数器的值变为0，如果计数器的值不为0，则主执行流会阻塞在此处</strong></li>
+</ul>
+<p><em>计数器变为负数的情况：会在运行时panic，panic的位置发生在sync包</em></p>
+<h5 id="sync-Once"><a href="#sync-Once" class="headerlink" title="sync.Once"></a>sync.Once</h5><p><strong>用来控制函数只能被调用一次</strong></p>
+<ul>
+<li><strong><code>func (o *Once) Do(f func())</code>：保证f函数只被执行一次</strong></li>
+</ul>
+<p><em>可以看出，f函数通常是一个没有参数和返回值的函数</em></p>
+<h6 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h6><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Once Struct &#123;</span><br><span class="line">    m Mutex	<span class="comment">//互斥锁</span></span><br><span class="line">    done <span class="keyword">uint32</span>	<span class="comment">//作为标记位，当函数被执行过一次之后，该数字会被置1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(o *Once)</span> <span class="title">Do</span><span class="params">(f <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> atomic.LoadUint32(&amp;o.done) == <span class="number">1</span> &#123;	<span class="comment">//done为1,说明Do函数已经被调用过</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    o.m.Lock()</span><br><span class="line">    <span class="keyword">defer</span> o.m.Unlock()</span><br><span class="line">    <span class="keyword">if</span> o.done == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">defer</span> atomic.StoreUint32(&amp;o.done, <span class="number">1</span>)	<span class="comment">//当该作用域声明周期到达时将done设置为1</span></span><br><span class="line">        f()	<span class="comment">//执行func函数</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="sync-Pool"><a href="#sync-Pool" class="headerlink" title="sync.Pool"></a>sync.Pool</h5><p><strong>用来使程序更加高效，减少高并发情况下GC过载导致的效率问题</strong></p>
+<ul>
+<li><strong><code>func (p *Pool) Get() interface{}</code>：返回Pool中任意一个对象，如果Pool为空，则New一个新创建的对象</strong></li>
+<li><strong><code>func (p Pool) Put(x interface{})</code>：将对象放入Pool中</strong></li>
+<li><strong>在创建sync.Pool对象时，需要初始化New()函数，作用是当Pool中没有临时对象时，应该返回一个什么样的对象</strong></li>
+</ul>
+<p><em>放入Pool中的对象，会在不一定的时间被清除掉，清理过程是在每次垃圾回收之前做的，垃圾回收是固定两分钟触发一次</em></p>
+<h5 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h5><p><strong>协程之间用来通信的类型，可以看作一个管道</strong></p>
+<ul>
+<li><strong>channel必须先创建才能使用，创建channel要使用内建函数make</strong></li>
+<li><strong>使用channel进行协程间同步是使用了channel未接收到数据时阻塞的特性</strong></li>
+</ul>
+<h4 id="互斥"><a href="#互斥" class="headerlink" title="互斥"></a>互斥</h4><h5 id="sync-Mutex"><a href="#sync-Mutex" class="headerlink" title="sync.Mutex"></a>sync.Mutex</h5><p><strong>普通的互斥锁</strong></p>
+<ul>
+<li><strong><code>func (m *Mutex) Lock()</code>：上锁</strong></li>
+<li><strong><code>func (m *Mutex) Unlock()</code>：解锁</strong></li>
+</ul>
+<h5 id="sync-RWMutex"><a href="#sync-RWMutex" class="headerlink" title="sync.RWMutex"></a>sync.RWMutex</h5><p><strong>读写锁</strong></p>
+<ul>
+<li><strong><code>func (rw *RWMutex) Lock()</code>：写方式加锁</strong></li>
+<li><strong><code>func (rw *RWMutex) Unlock()</code>：写方式解锁</strong></li>
+<li><strong><code>func (rw *RWMutex) RLock()</code>：读方式加锁</strong></li>
+<li><strong><code>func (rw *RWMutex) RUnlock()</code>：读方式解锁</strong></li>
+<li><strong><code>func (rw *RWMutex) RLocker() Locker</code>：返回一个Locker接口，通过rw.RLock和rw.Unlock实现Lock和Unlock方法，个人认为这样做只是为了让代码看起来简介，实质就是以读方式加锁或解锁</strong></li>
+</ul>
+<hr>
+<h3 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h3><p><em>golang的Context在golang1.7版本引入标准库</em></p>
+<p><strong>使用golang开发服务器时，通常处理一个请求都是在一个单独的协程中进行的，处理一个请求可能会需要多个协程之间的交互，Context可以使开发者方便协程之间的信息/信号的传递</strong>。</p>
+<h4 id="创建Context对象"><a href="#创建Context对象" class="headerlink" title="创建Context对象"></a>创建Context对象</h4><blockquote>
+<p><strong><code>func Background()</code>：该接口会返回一个空的context对象，通常由该接口来产生根context，通常会搭配<code>WithCancel</code>或<code>WithTimeout</code>或<code>WithDeadline</code>使用</strong></p>
+</blockquote>
+<ul>
+<li><strong><code>func WithCancel(parent Context) (ctx Context, cancel CancelFunc)</code>：该接口的作用是产生一个新的ctx与cancel函数，当调用cancel函数时，该ctx会被取消</strong></li>
+<li><strong><code>func WithTimeout(parent Context, timeout time.Duration) (ctx Context, cancel CancelFunc)</code>：该接口的作用是产生一个新的ctx与cancel函数，当调用cancel函数或者ctx存在时间超过<code>超时时长</code>时该ctx会被取消</strong></li>
+<li><strong><code>func WithDeadline(parent Context, d time.Time) (ctx Context, cancel CancelFunc)</code>：该接口的作用是产生一个新的ctx与cancel函数，当调用cancel函数或者到达<code>超时时间</code>时该ctx会被取消</strong></li>
+<li><strong><code>func WithValue(parent Context, key, value interface{})</code>：WithValue函数与取消ctx无关，它是为了生成一个绑定了一个键值对数据的ctx，该数据可以通过ctx.Value()访问到，通过ctx来传递数据</strong></li>
+</ul>
+<h4 id="context-Context接口的方法"><a href="#context-Context接口的方法" class="headerlink" title="context.Context接口的方法"></a>context.Context接口的方法</h4><ul>
+<li><strong><code>[ctx对象].Done() &lt;-chan struct{}</code>：用来判断当前的ctx是否已经被取消</strong></li>
+<li><strong><code>Deadline() (deadline time.Time, ok bool)</code>：用来判断当前ctx对象是否设置超时时间</strong></li>
+<li><strong><code>Err() error</code>：返回当前ctx的error</strong></li>
+<li><strong><code>Value(key interface{}) interface{}</code>：获取绑定在ctx上的键值对，仅有通过WithValue创建与键值对绑定的ctx时才有意义</strong></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">AHAOAHA</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章連結: </span><span class="post-copyright-info"><a href="http://ahaoaha.top/2019/05/09/Golang%E4%B8%AD%E5%8D%8F%E7%A8%8B%E7%9A%84%E4%BD%BF%E7%94%A8/">http://ahaoaha.top/2019/05/09/Golang%E4%B8%AD%E5%8D%8F%E7%A8%8B%E7%9A%84%E4%BD%BF%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版權聲明: </span><span class="post-copyright-info">本部落格所有文章除特別聲明外，均採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 許可協議。轉載請註明來自 <a href="http://ahaoaha.top" target="_blank">苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/05/15/Nginx-Notes/"><img class="prev-cover" data-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Nginx Notes</div></div></a></div><div class="next-post pull-right"><a href="/2019/04/29/Golang%E4%B8%AD%E6%93%8D%E4%BD%9C%E5%AD%97%E7%AC%A6%E4%B8%B2/"><img class="next-cover" data-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Golang中操作字符串</div></div></a></div></nav></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By AHAOAHA</div><div class="framework-info"><span>Power by </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="閱讀模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字型"><i class="fas fa-plus"></i></button><button id="font_minus" title="縮小字型"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="簡繁轉換">繁</button><button id="darkmode" title="淺色和深色模式轉換"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="設定"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" title="目錄"><i class="fas fa-list-ul"></i></button><button id="go-up" title="回到頂部"><i class="fas fa-arrow-up"></i></button></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script></body></html>

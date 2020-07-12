@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="zh-TW" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>智能指针 | 苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</title><meta name="description" content="智能指针出现的必要？ 在C++中，用户需要自己管理申请的内存，有时候会忘记释放所申请的内存；有时候因为程序执行流的改变导致申请的空间没有进行释放，就会造成内存泄露的问题。  RAII RAII是一种实现智能指针的思想，也就是将所申请的内存空间交给一个对象来管理，当对象的生命周期到达时，程序会自行调用对象的析构函数。  智能指针 智能指针的两个条件：  RAII 像指针一样 重载*&#x2F;-&gt;"><meta name="keywords" content="智能指针"><meta name="author" content="AHAOAHA"><meta name="copyright" content="AHAOAHA"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://ahaoaha.top/2019/01/22/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="智能指针"><meta property="og:url" content="http://ahaoaha.top/2019/01/22/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/"><meta property="og:site_name" content="苦心人，天不負，臥薪嘗膽，三千越甲可吞吳"><meta property="og:description" content="智能指针出现的必要？ 在C++中，用户需要自己管理申请的内存，有时候会忘记释放所申请的内存；有时候因为程序执行流的改变导致申请的空间没有进行释放，就会造成内存泄露的问题。  RAII RAII是一种实现智能指针的思想，也就是将所申请的内存空间交给一个对象来管理，当对象的生命周期到达时，程序会自行调用对象的析构函数。  智能指针 智能指针的两个条件：  RAII 像指针一样 重载*&#x2F;-&gt;"><meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2019-01-22T03:53:47.000Z"><meta property="article:modified_time" content="2019-09-08T05:10:57.108Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="常见的排序算法" href="http://ahaoaha.top/2019/02/20/%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"><link rel="next" title="多态" href="http://ahaoaha.top/2019/01/02/%E5%A4%9A%E6%80%81/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '複製成功',
+    error: '複製錯誤',
+    noSupport: '瀏覽器不支援'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '鍵將本頁加入書籤'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: false    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="苦心人，天不負，臥薪嘗膽，三千越甲可吞吳" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">49</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">標籤</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分類</div><div class="length_num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down menus-expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目錄</div><div class="sidebar-toc__progress"><span class="progress-notice">你已經讀了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#智能指针出现的必要？"><span class="toc-number">1.</span> <span class="toc-text">智能指针出现的必要？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAII"><span class="toc-number">2.</span> <span class="toc-text">RAII</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#智能指针"><span class="toc-number">3.</span> <span class="toc-text">智能指针</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#auto-ptr"><span class="toc-number">3.1.</span> <span class="toc-text">auto_ptr</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unique-ptr"><span class="toc-number">3.2.</span> <span class="toc-text">unique_ptr</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shared-ptr"><span class="toc-number">3.3.</span> <span class="toc-text">shared_ptr</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#shared-ptr存在的问题"><span class="toc-number">3.3.1.</span> <span class="toc-text">shared_ptr存在的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#循环引用"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">循环引用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#解决循环引用的方法"><span class="toc-number">3.3.1.2.</span> <span class="toc-text">解决循环引用的方法</span></a></li></ol></li></ol></li></ol></li></ol></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</a></span><span class="pull-right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down menus-expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">智能指针</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="發表於 2019-01-22 11:53:47"><i class="far fa-calendar-alt fa-fw"></i> 發表於 2019-01-22</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新於 2019-09-08 13:10:57"><i class="fas fa-history fa-fw"></i> 更新於 2019-09-08</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/C/">C++</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta__icon"></i><span>閱讀量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="智能指针出现的必要？"><a href="#智能指针出现的必要？" class="headerlink" title="智能指针出现的必要？"></a>智能指针出现的必要？</h2><blockquote>
+<p>在C++中，用户需要自己管理申请的内存，有时候会忘记释放所申请的内存；有时候因为程序执行流的改变导致申请的空间没有进行释放，就会造成内存泄露的问题。</p>
+</blockquote>
+<h2 id="RAII"><a href="#RAII" class="headerlink" title="RAII"></a>RAII</h2><blockquote>
+<p>RAII是一种实现智能指针的思想，<strong>也就是将所申请的内存空间交给一个对象来管理，当对象的生命周期到达时，程序会自行调用对象的析构函数</strong>。</p>
+</blockquote>
+<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><blockquote>
+<p>智能指针的两个条件：</p>
+<ul>
+<li>RAII</li>
+<li>像指针一样<ul>
+<li>重载*/-&gt;</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="auto-ptr"><a href="#auto-ptr" class="headerlink" title="auto_ptr"></a>auto_ptr</h3><p><strong>auto_ptr在C++98的版本中就已经存在了，但是auto_ptr存在一个很严重的问题，当程序调用auto_ptr的拷贝构造函数或者赋值运算符的重载之后，之前管理对象的智能指针就会被赋空，这是一个很重大的缺陷，所以尽量不使用auto_ptr</strong>。</p>
+<h3 id="unique-ptr"><a href="#unique-ptr" class="headerlink" title="unique_ptr"></a>unique_ptr</h3><p><strong>为了解决auto_ptr存在的问题，在C++11中提出了unique_ptr，它的解决方式是十分简单粗暴的，unique_ptr直接将类的拷贝构造函数和赋值运算符的重载删除，即就是说使用unique_ptr不能进行拷贝操作，这种处理方式可以解决auto_ptr存在的问题，但是也会造成一定程度上的使用不方便</strong>。</p>
+<h3 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr"></a>shared_ptr</h3><p><strong>shared_ptr也是C++11提供的智能指针，shared_ptr采用引用计数的方式来解决auto_ptr拷贝时存在的问题，类似于给指针管理的对象添加了一个计数器，这个计数器是跟随管理对象的，在每一个shared_ptr中都存在一个指针指向一个堆空间上的计数器，当调用智能指针的构造函数时，为该指针创建出位于堆上的计数器，当进行拷贝或者赋值时，仅仅是让指向计数器的指针指向之前开辟好的堆空间而已，若进行拷贝或赋值，则引用计数加1；当智能指针生命周期到达时，如果计数器为0，则析构管理的对象，如果大于0，则计数器减1即可</strong>。</p>
+<blockquote>
+<p>注意：</p>
+<ul>
+<li>这里的计数器并不能声明为类的static成员，类的static成员在中整个类中只存在一个实体，而不同的智能指针对象是有可能去管理不同的资源的。</li>
+<li><strong>shared_ptr对引用计数的加加或减减操作是线程安全的，但是对智能指针所管理对象的操作，线程安全问题需要编写者自己维护</strong>。</li>
+</ul>
+</blockquote>
+<h4 id="shared-ptr存在的问题"><a href="#shared-ptr存在的问题" class="headerlink" title="shared_ptr存在的问题"></a>shared_ptr存在的问题</h4><h5 id="循环引用"><a href="#循环引用" class="headerlink" title="循环引用"></a>循环引用</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//	问题场景</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; _next;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; _prev;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; node1 = <span class="keyword">new</span> Node;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Node&gt; node2 = <span class="keyword">new</span> Node;</span><br><span class="line">    </span><br><span class="line">    node1-&gt;_next = node2;</span><br><span class="line">    node2-&gt;_prev = node1;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个智能指针指向node1，此时智能指针的引用计数为1（此处假设从0开始），创建一个智能指针node2，此时node2的引用计数为1。</p>
+<p>node1的_next智能指针指向node2，此时node2的引用计数为2。</p>
+<p>node2的_prev智能指针指向node1，此时node1的循环引用为2。</p>
+<p><strong>当析构node1的时候，发现此时引用计数为2，则只是对计数器减1，而node1的节点依旧存在，所以此时node1中的_next依然指向node2，node2中的引用计数依然是2</strong>。</p>
+<p><strong>然后析构node2的时候，发现node2的引用计数是2，则也只是对引用计数减1，此时的node1和node2的实例对象依然存在</strong>。</p>
+<p><strong>之后编译器就会认为完成了两个节点的析构，所以也就会造成内存泄露的问题</strong>。</p>
+<h5 id="解决循环引用的方法"><a href="#解决循环引用的方法" class="headerlink" title="解决循环引用的方法"></a>解决循环引用的方法</h5><p><strong>使用弱引用类型weak_ptr</strong></p>
+<blockquote>
+<p>原理：当两个指针相互链接时，使用weak_ptr不会改变原本自身指针的引用计数。</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="built_in">std</span>::weak_ptr&lt;Node&gt; _next;</span><br><span class="line">    <span class="built_in">std</span>::weak_ptr&lt;Node&gt; _prev;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span> <span class="title">pnode1</span><span class="params">(<span class="keyword">new</span> Node)</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span> <span class="title">pnode2</span><span class="params">(<span class="keyword">new</span> Node)</span></span>;</span><br><span class="line">    pnode1-&gt;_next = pnode2;</span><br><span class="line">    pnode2-&gt;_prev = pnode1;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//使用weak_ptr与shared_ptr相互赋值时不会改变shared_ptr的引用计数</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">AHAOAHA</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章連結: </span><span class="post-copyright-info"><a href="http://ahaoaha.top/2019/01/22/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">http://ahaoaha.top/2019/01/22/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版權聲明: </span><span class="post-copyright-info">本部落格所有文章除特別聲明外，均採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 許可協議。轉載請註明來自 <a href="http://ahaoaha.top" target="_blank">苦心人，天不負，臥薪嘗膽，三千越甲可吞吳</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/">智能指针</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/02/20/%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"><img class="prev-cover" data-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">常见的排序算法</div></div></a></div><div class="next-post pull-right"><a href="/2019/01/02/%E5%A4%9A%E6%80%81/"><img class="next-cover" data-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">多态</div></div></a></div></nav></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 By AHAOAHA</div><div class="framework-info"><span>Power by </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="閱讀模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字型"><i class="fas fa-plus"></i></button><button id="font_minus" title="縮小字型"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="簡繁轉換">繁</button><button id="darkmode" title="淺色和深色模式轉換"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="設定"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" title="目錄"><i class="fas fa-list-ul"></i></button><button id="go-up" title="回到頂部"><i class="fas fa-arrow-up"></i></button></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script></body></html>
